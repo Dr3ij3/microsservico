@@ -5,6 +5,7 @@ import { User } from './users.model';
 import { CpfValidator } from 'src/utils/cpf-validator';
 import { MongoNetworkError } from 'mongodb';
 import { error } from 'console';
+import { strict } from 'assert';
 
 //import { User, UserDocument } from './user.schema';
 
@@ -20,12 +21,8 @@ export class UsersService {
   }
 
   async create(user: User): Promise<User> {
-    if (!this.CpfValidator.validate(user.cpf)) {
-      throw new HttpException(
-        'CPF não valido, tente novamente!',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    user.cpf = user.cpf.replace(/[\D]/g, '');
+    this.CpfValidator.validate(user.cpf);
     const userExists = await this.findOne(user.cpf);
     if (userExists) {
       throw new HttpException('CPF já registrado!', HttpStatus.BAD_REQUEST);
@@ -33,11 +30,20 @@ export class UsersService {
     return this.usersModel.create(user);
   }
 
-  async findOne(cpf: String): Promise<User> {
+  async findOne(cpf: string): Promise<User> {
+    this.CpfValidator.validate(cpf);
     return await this.usersModel.findOne({ cpf });
   }
 
-  async findOneAndDelete(cpf: String): Promise<User> {
+  async findOneAndUpdate(cpf: string, name: string): Promise<User> {
+    this.CpfValidator.validate(cpf);
+    return await this.usersModel
+      .findOneAndUpdate({ cpf }, { name }, { new: true })
+      .exec();
+  }
+
+  async findOneAndDelete(cpf: string): Promise<User> {
+    this.CpfValidator.validate(cpf);
     return await this.usersModel.findOneAndDelete({ cpf });
   }
 }

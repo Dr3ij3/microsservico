@@ -4,6 +4,7 @@ import {
   Get,
   Post,
   Param,
+  Patch,
   Delete,
   HttpException,
   HttpStatus,
@@ -11,7 +12,7 @@ import {
 import { UsersService } from './users.service';
 import { User } from './users.model';
 import { promises } from 'dns';
-import { validator } from 'cpf-cnpj-validator';
+import { cpf, validator } from 'cpf-cnpj-validator';
 
 @Controller('users')
 export class UsersController {
@@ -29,12 +30,20 @@ export class UsersController {
   }
 
   @Get(':cpf')
-  async findByCpf(@Param('cpf') cpf: String): Promise<User> {
+  async findByCpf(@Param('cpf') cpf: string): Promise<User> {
     return await this.userService.findOne(cpf);
   }
 
+  @Patch(':cpf')
+  async updateByCpf(
+    @Param('cpf') cpf: string,
+    @Body('name') name: string,
+  ): Promise<User> {
+    return await this.userService.findOneAndUpdate(cpf, name);
+  }
+
   @Delete(':cpf')
-  async deleteByCpf(@Param('cpf') cpf: String): Promise<User> {
+  async deleteByCpf(@Param('cpf') cpf: string): Promise<User> {
     return await this.userService.findOneAndDelete(cpf);
   }
 }

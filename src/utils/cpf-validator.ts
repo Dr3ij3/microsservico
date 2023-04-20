@@ -1,5 +1,7 @@
+import { HttpException, HttpStatus } from '@nestjs/common';
+
 export class CpfValidator {
-  validate(cpf: string): boolean {
+  validate(cpf: string): void {
     if (
       cpf.length != 11 ||
       cpf == '00000000000' ||
@@ -14,7 +16,10 @@ export class CpfValidator {
       cpf == '99999999999' ||
       cpf == '01234567890'
     )
-      return false;
+      throw new HttpException(
+        'CPF não valido, tente novamente!',
+        HttpStatus.BAD_REQUEST,
+      );
 
     var soma = 0;
     var resto = 0;
@@ -25,7 +30,11 @@ export class CpfValidator {
 
     if (resto == 10 || resto == 11) resto = 0;
 
-    if (resto != parseInt(cpf.charAt(9))) return false;
+    if (resto != parseInt(cpf.charAt(9)))
+      throw new HttpException(
+        'CPF não valido, tente novamente!',
+        HttpStatus.BAD_REQUEST,
+      );
     soma = 0;
 
     for (let i = 0; i < 10; i++) soma += parseInt(cpf.charAt(i)) * (11 - i);
@@ -33,8 +42,10 @@ export class CpfValidator {
 
     if (resto == 10 || resto == 11) resto = 0;
 
-    if (resto != parseInt(cpf.charAt(10))) return false;
-
-    return true;
+    if (resto != parseInt(cpf.charAt(10)))
+      throw new HttpException(
+        'CPF não valido, tente novamente!',
+        HttpStatus.BAD_REQUEST,
+      );
   }
 }
